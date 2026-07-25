@@ -12,6 +12,14 @@ DATABASE_URL = os.environ.get(
     "postgresql+asyncpg://postgres:postgres@localhost:5432/geetanjali_db"
 )
 
+# Render (and many cloud providers) inject plain "postgresql://" or "postgres://"
+# but SQLAlchemy async requires "postgresql+asyncpg://".
+# Normalize the URL here so it always uses the asyncpg driver.
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+elif DATABASE_URL.startswith("postgresql://") and "+asyncpg" not in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+
 # Global engine and session variables
 _engine = None
 _async_session_factory = None
