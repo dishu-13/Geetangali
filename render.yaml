@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: geetanjali-backend
+    env: python
+    region: singapore
+    plan: free
+    rootDir: geetanjali-main/backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://geetanjali-salon.web.app,https://geetanjali-salon.firebaseapp.com
+      - key: PG_DATABASE_URL
+        fromDatabase:
+          name: geetanjali-db
+          property: connectionString
+      - key: OWNER_EMAIL
+        value: owner@luxurysalon.com
+      - key: OWNER_PASSWORD
+        value: owner123
+      - key: MANAGER_EMAIL
+        value: manager@luxurysalon.com
+      - key: MANAGER_PASSWORD
+        value: manager123
+
+databases:
+  - name: geetanjali-db
+    databaseName: geetanjali_db
+    user: geetanjali
+    region: singapore
+    plan: free
