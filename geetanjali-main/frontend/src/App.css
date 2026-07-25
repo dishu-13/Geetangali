@@ -1,0 +1,240 @@
+/* Ultra-Premium Modern UI/UX Design System with Smooth Micro-Animations */
+
+@keyframes goldShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes floatGlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes subtlePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.03); }
+}
+
+.animate-shimmer-gold {
+  background: linear-gradient(90deg, #D4AF37 0%, #FFF3B0 50%, #D4AF37 100%);
+  background-size: 200% 100%;
+  animation: goldShimmer 3s infinite linear;
+}
+
+.animate-float {
+  animation: floatGlow 4s ease-in-out infinite;
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #B8860B 0%, #D4AF37 40%, #9A7B1C 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Glassmorphism Card Surface */
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 10px 30px -5px rgba(9, 13, 22, 0.04);
+}
+
+/* High-Contrast Distinct Cards & Neomorphism System */
+.lss-card, .neu-card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  border: 1px solid #E6DACD;
+  box-shadow: 6px 10px 25px -4px rgba(120, 95, 70, 0.14), 0 2px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lss-card:hover, .neu-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 8px 18px 35px -6px rgba(120, 95, 70, 0.22), 0 4px 10px -2px rgba(0, 0, 0, 0.08);
+  border-color: #D9C8B5;
+}
+.neu-card.fixed:hover {
+  transform: translate(-50%, -3px);
+}
+
+
+.neu-inset, .neu-pressed {
+  background: #F6EFE6;
+  box-shadow: inset 3px 3px 7px rgba(140, 115, 90, 0.18), inset -3px -3px 7px #ffffff;
+  border-radius: 18px;
+  border: 1px solid #E6DACD;
+}
+
+.neu-btn {
+  background: #FFFFFF;
+  box-shadow: 4px 6px 16px -2px rgba(120, 95, 70, 0.14);
+  border-radius: 16px;
+  border: 1px solid #E6DACD;
+  transition: all 200ms ease;
+}
+.neu-btn:hover {
+  box-shadow: 6px 10px 22px -2px rgba(120, 95, 70, 0.22);
+  transform: translateY(-2px);
+}
+
+.neu-pill {
+  background: #FFFFFF;
+  box-shadow: 4px 6px 16px -2px rgba(120, 95, 70, 0.14);
+  border-radius: 9999px;
+  border: 1px solid #E6DACD;
+  transition: all 200ms ease;
+}
+.neu-pill:hover {
+  box-shadow: 6px 10px 22px -2px rgba(120, 95, 70, 0.22);
+  transform: translateY(-2px);
+}
+
+.lss-gold {
+  color: #B8860B;
+}
+
+.lss-btn-gold {
+  background: linear-gradient(135deg, #D4AF37 0%, #C5A059 50%, #B8860B 100%);
+  color: #090D16;
+  font-weight: 800;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 15px 0 rgba(212, 175, 55, 0.25);
+  transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+.lss-btn-gold:hover {
+  background: linear-gradient(135deg, #E5C158 0%, #D4AF37 50%, #C5A059 100%);
+  box-shadow: 0 6px 20px 0 rgba(212, 175, 55, 0.4);
+  transform: translateY(-1.5px);
+}
+.lss-btn-gold:active {
+  transform: translateY(0px);
+}
+
+.lss-btn-outline {
+  background: #FFFFFF;
+  color: #090D16;
+  border: 1px solid #CBD5E1;
+  font-weight: 700;
+  border-radius: 10px;
+  transition: all 200ms ease;
+}
+.lss-btn-outline:hover {
+  background: #F8FAFC;
+  border-color: #D4AF37;
+  color: #9A7B1C;
+  transform: translateY(-1px);
+}
+
+.lss-overline {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #64748B;
+  font-weight: 800;
+}
+
+.lss-input {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #090D16;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+.lss-input:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.18);
+}
+
+.lss-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.lss-table th {
+  text-align: left;
+  padding: 14px 18px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #475569;
+  font-weight: 800;
+  border-bottom: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  position: sticky;
+  top: 0;
+}
+.lss-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #F1F5F9;
+  font-size: 14px;
+  color: #090D16;
+  font-weight: 500;
+  transition: background-color 150ms ease;
+}
+.lss-table tr:hover td {
+  background: #F8FAFC;
+}
+
+.lss-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* Custom Calendar Picker Styling for Light Mode */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="month"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: opacity(0.85);
+  transition: transform 0.2s ease, filter 0.2s ease;
+  padding: 4px;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="month"]::-webkit-calendar-picker-indicator:hover {
+  filter: opacity(1);
+  transform: scale(1.1);
+}
+
+/* Remove number input spinners globally */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Premium luxury background with mesh gradients and dot pattern */
+.premium-bg {
+  position: relative;
+  background-color: #FAF6F0; /* Clean, warm luxury cream base */
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(212, 175, 55, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 0%, rgba(230, 218, 205, 0.25) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(212, 175, 55, 0.06) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(140, 115, 90, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(230, 218, 205, 0.3) 0px, transparent 50%);
+}
+
+.premium-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-size: 24px 24px;
+  background-image: radial-gradient(rgba(120, 95, 70, 0.04) 1px, transparent 1px);
+}
+

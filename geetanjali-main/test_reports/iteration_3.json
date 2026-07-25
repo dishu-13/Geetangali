@@ -1,0 +1,55 @@
+{
+  "summary": "Backend smoke test for iteration 3 (Excel template, vendors master, opening-stock/purchase-invoice upload, retail location, POS retail auto-checkout, vendor lead time in PO). 21 checks executed; 18 pass, 3 issues found (2 MEDIUM, 1 LOW).",
+  "tested_scope": ["backend", "auth", "integration"],
+  "passed": [
+    "Owner + Manager login (/api/auth/login)",
+    "GET /api/inventory/template.xlsx -> 200 xlsx with 4 sheets [Instructions, Vendors, Opening Stock, Purchase Invoice]",
+    "POST /api/vendors/upload as manager -> 403 (RBAC)",
+    "POST /api/vendors/upload as owner -> imported=4",
+    "GET /api/vendors sorted by name; Kanpeki=7, Kouyou=5, Kerastase=10, L'Oreal Pro=4",
+    "POST /api/vendors upsert (creates new vendor, second call updates lead_time_days from 9 to 14)",
+    "POST /api/inventory/opening-stock/upload as manager -> 403",
+    "POST /api/inventory/opening-stock/upload as owner -> imported=4; SKUs have batches with locations store/floor/retail and expiry_date (e.g. 2027-03-15); vendor_name set (Kanpeki)",
+    "POST /api/inventory/purchase-invoice/upload -> invoices_created=2; both INV-KAN-0724 & INV-KOU-0725 present via /api/inventory/purchase-invoices",
+    "GET /api/inventory/purchase-orders -> vendor + lead_time_days per SKU correct (Kanpeki=7, Kouyou=5, Kerastase=10)",
+    "GET /api/dashboard/owner -> working_capital=298650.21, includes total_service_revenue, total_retail_revenue, sku_count, etc.",
+    "POS auto-checkout on RETAIL verified: uploading a fresh POS CSV row for 'Creamy Cleanser (100 Gms)' created a checkout with source='pos' and notes='POS retail sale · invoice TEST-RET-002' (spec-conformant)",
+    "Retail batch FIFO consumption works (retail batches sum went 4 -> 3 after 1 qty POS sale)",
+    "GET /api/incentives/daily?day=2026-06-28 -> 200",
+    "POST /api/inventory/checkout as manager (manual store->floor) -> 200",
+    "GET /api/pos/quality-failures -> 200",
+    "Idempotency: re-running opening-stock/vendors uploads does not error"
+  ],
+  "failed": [
+    {
+      "area": "GET /api/inventory/skus - retail_qty denormalization",
+      "issue": "Denormalized 'retail_qty' field on SKU is NOT decremented when POS auto-checkout consumes from retail batches. Batch qtys are decremented correctly (source of truth), but the aggregated field returned by the API becomes stale, causing reports/UI to show inflated retail on-hand.",
+      "evidence": "Before POS: retail_qty=4.0, retail batches sum=4.0. After POST /api/pos/upload with qty=1 (pos_auto_checkouts=1 confirmed): retail batches sum=3.0 but SKU.retail_qty field still =4.0. Likely _consume_batches updates batches only; needs to also $inc retail_qty (and same pattern for store_qty/floor_qty on their consume paths).",
+      "priority": "MEDIUM"
+    },
+    {
+      "area": "GET /api/inventory/skus - missing retail_qty field on legacy SKUs",
+      "issue": "20 out of 24 SKUs (POS-seeded before opening-stock upload was introduced) are missing the 'retail_qty' key entirely. Spec says retail_qty should be present (may be 0). Consumers that do `sku.retail_qty` without a default will break or show `undefined/None`.",
+      "evidence": "Sample: 'K GENESIS HOMME BAIN (Thick) 250ml-R-5 %' keys=[id, name, category, unit_cost, unit_price, store_qty, floor_qty, batches, created_at] - no retail_qty. Fix: backfill/default retail_qty=0 in list endpoint or migration.",
+      "priority": "MEDIUM"
+    },
+    {
+      "area": "opening-stock upload idempotency",
+      "issue": "Re-uploading the opening-stock template accumulates batches instead of upserting quantities. Creamy Cleanser split is 20/2/4 after several dev+test uploads instead of the spec example 4/1/2. Not necessarily a bug (batches are additive by design) but the spec example split cannot be verified from an already-populated DB, and this can silently double on operator error.",
+      "evidence": "Creamy Cleanser (100 Gms) store_qty=20, floor_qty=2, retail_qty=4 (expected 4/1/2 on a fresh DB). Consider tracking an 'opening_stock_imported_at' guard or requiring an explicit --replace flag.",
+      "priority": "LOW"
+    }
+  ],
+  "action_items": [
+    "Update retail/store/floor denormalized qty fields on SKU whenever _consume_batches is called (or compute from batches on read).",
+    "Backfill or default 'retail_qty': 0 for legacy SKUs (either via migration or via the /inventory/skus response projection).",
+    "(Optional) Guard opening-stock upload against unintentional re-import to prevent qty accumulation."
+  ],
+  "success_rate": {"backend": "86%", "frontend": "not tested"},
+  "retest_needed": true,
+  "full_testing_deferred": true,
+  "notes": {
+    "dashboard_route": "Correct route is /api/dashboard/owner (not /api/owner/dashboard).",
+    "pos_note_prefix": "Legacy 28 POS checkouts still carry the old 'POS auto-checkout · invoice ...' prefix (created before the code change). New POS ingests correctly use 'POS retail sale · invoice ...'. No fix required unless historical notes must be migrated."
+  }
+}

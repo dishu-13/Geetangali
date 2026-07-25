@@ -1,0 +1,17 @@
+{
+  "summary": "Verified startup ledger_seed_v1 for technical/retail ledgers + regression on auth login and incentives daily. All 3 checks passed.",
+  "tested_scope": ["backend", "auth", "integration"],
+  "passed": [
+    "POST /api/auth/login (owner@luxurysalon.com) -> 200, returns token+user",
+    "GET /api/inventory/skus?ledger=technical -> 200, 161 SKUs, all ledger=technical, all 161 have floor_qty>0, batches primarily expiry_date=None (only 1 pre-existing 'Test Color Cream B' has expiry; not from seed)",
+    "GET /api/inventory/skus?ledger=retail -> 200, 3 SKUs (GENESIS + 2 test rows), retail-ledger tagged, GENESIS has retail_qty=2 and batch expiry_date=2027-09-01",
+    "GET /api/incentives/daily?day=2026-06-28 -> 200, returns config tiers + rows (e.g. Lhd Faid base_salary 25000, service_revenue 4000)"
+  ],
+  "failed": [],
+  "action_items": [
+    "Follow-up (as flagged by main agent): retail xlsx column mapping matches only 3 rows; parser mapping fix needed to seed all retail SKUs."
+  ],
+  "success_rate": {"backend": "100%", "frontend": "N/A"},
+  "retest_needed": false,
+  "full_testing_deferred": true
+}

@@ -1,0 +1,105 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --lss-bg: #F8FAFC;
+  --lss-surface: #FFFFFF;
+  --lss-border: #E2E8F0;
+  --lss-text: #090D16;
+  --lss-muted: #475569;
+  --lss-gold: #D4AF37;
+  --lss-gold-hover: #B8860B;
+  --lss-success: #047857;
+  --lss-warn: #B45309;
+  --lss-danger: #BE123C;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--lss-bg);
+  color: var(--lss-text);
+  font-family: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-serif-lux {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.font-display {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-family: "Inter", sans-serif;
+}
+
+/* Custom selection */
+::selection {
+  background: #D4AF37;
+  color: #090D16;
+}
+
+/* Hide scrollbars globally across all browsers while retaining scrolling functionality */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+*::-webkit-scrollbar {
+  display: none;
+  width: 0px;
+  height: 0px;
+  background: transparent;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 7%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 7%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 7%;
+    --primary: 222 47% 7%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 7%;
+    --muted: 215 16% 47%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 43 65% 52%;
+    --accent-foreground: 222 47% 7%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 43 65% 52%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-slate-200;
+  }
+  body {
+    @apply bg-slate-50 text-slate-950;
+  }
+}

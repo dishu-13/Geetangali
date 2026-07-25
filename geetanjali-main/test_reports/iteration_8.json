@@ -1,0 +1,18 @@
+{
+  "summary": "Backend-only smoke for Iter 8 (SKU wipe + ledger field). Verified startup wipe left skus empty, ledger filter on GET /api/inventory/skus works, opening-stock upload accepts 'Ledger' column and defaults blanks to retail. Auth login + incentives daily regression pass. flags.sku_wipe_v1 present -> idempotent.",
+  "tested_scope": ["backend", "auth", "integration"],
+  "passed": [
+    "POST /api/auth/login owner returns token (200)",
+    "GET /api/inventory/skus returns [] after startup wipe",
+    "GET /api/inventory/skus?ledger=retail returns filtered list",
+    "GET /api/inventory/skus?ledger=technical returns filtered list",
+    "POST /api/inventory/opening-stock/upload accepts Ledger column, creates SKUs with correct ledger; blank ledger defaults to 'retail' (imported=3; retail=2, technical=1)",
+    "GET /api/incentives/daily?day=2026-06-28 returns 200 with keys {day, config, rows}",
+    "flags collection contains sku_wipe_v1 (wipe ran once and is idempotent)"
+  ],
+  "failed": [],
+  "action_items": [],
+  "success_rate": {"backend": "100%", "frontend": "not tested"},
+  "retest_needed": false,
+  "full_testing_deferred": true
+}

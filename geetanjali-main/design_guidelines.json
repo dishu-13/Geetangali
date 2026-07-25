@@ -1,0 +1,131 @@
+{
+  "project": "Geetanjali Salon by Guru Maa (Internal SaaS Rebrand)",
+  "theme": "LIGHT",
+  "archetype": "4 (Swiss & High-Contrast / Authority)",
+  "color_system": {
+    "palette_rationale": "High-contrast monochrome focusing on authority and clarity. Replaces the champagne-gold/dark-navy with a highly legible, premium palette using pure black, off-white, and warm neutrals to reduce eye strain in data-dense workflows.",
+    "css_variables": {
+      "--background": "#F7F7F5",
+      "--surface": "#FFFFFF",
+      "--foreground": "#0A0A0A",
+      "--muted": "#EBEBE9",
+      "--muted-foreground": "#737373",
+      "--border": "#E5E5E5",
+      "--primary": "#0A0A0A",
+      "--primary-foreground": "#FFFFFF",
+      "--secondary": "#F5F5F5",
+      "--secondary-foreground": "#171717",
+      "--accent": "#F0F0F0",
+      "--accent-foreground": "#0A0A0A",
+      "--success-bg": "#F0FDF4",
+      "--success-text": "#14532D",
+      "--success-border": "#BBE4C6",
+      "--warning-bg": "#FEFCE8",
+      "--warning-text": "#713F12",
+      "--warning-border": "#FDE047",
+      "--danger-bg": "#FEF2F2",
+      "--danger-text": "#7F1D1D",
+      "--danger-border": "#FECACA"
+    }
+  },
+  "typography": {
+    "rationale": "A minimalist, type-driven aesthetic that eliminates the old gold serif. Focuses on premium geometric sans for headings and dense-data legibility for tables.",
+    "fonts": {
+      "display": "Cabinet Grotesk (or Clash Display) - Used for primary headings, app titles, and KPI values.",
+      "body": "IBM Plex Sans (or Satoshi) - Used for all UI text, data tables, and forms. Specifically chosen for excellent tabular-nums rendering in financial/inventory tables.",
+      "mono": "JetBrains Mono (for raw data IDs, SKUs, or checkout logs)."
+    },
+    "scale": {
+      "h1": "text-3xl font-bold tracking-tight text-[#0A0A0A]",
+      "h2": "text-2xl font-semibold tracking-tight text-[#0A0A0A]",
+      "h3": "text-lg font-medium tracking-tight",
+      "body": "text-sm leading-relaxed text-[#171717]",
+      "small": "text-xs text-[#737373]",
+      "overline": "text-[10px] uppercase tracking-[0.15em] font-semibold text-[#737373]"
+    },
+    "legacy_class_mapping": {
+      "font-serif-lux": "Replaced by: font-display tracking-tight text-foreground",
+      "lss-overline": "Replaced by: text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground"
+    }
+  },
+  "components": {
+    "sidebar": {
+      "background": "bg-[#F7F7F5] (Off-white)",
+      "border": "border-r border-[#E5E5E5]",
+      "active_state": "bg-white text-[#0A0A0A] font-medium shadow-sm border-l-2 border-[#0A0A0A]",
+      "inactive_state": "text-[#737373] hover:bg-[#EBEBE9] hover:text-[#0A0A0A]",
+      "typography": "text-sm"
+    },
+    "kpi_cards": {
+      "legacy_class": "lss-card",
+      "new_styling": "bg-white border border-[#E5E5E5] rounded-none shadow-sm p-4 flex flex-col gap-1 transition-shadow hover:shadow-md",
+      "value_styling": "text-3xl font-display font-medium tracking-tight text-[#0A0A0A] tabular-nums",
+      "label_styling": "text-xs font-medium text-[#737373] uppercase tracking-wider"
+    },
+    "data_tables": {
+      "legacy_class": "lss-table",
+      "new_styling": "w-full text-sm text-left border-collapse",
+      "header": "bg-[#F7F7F5] border-y border-[#E5E5E5] text-xs font-semibold text-[#737373] uppercase tracking-wider py-3 px-4",
+      "row": "border-b border-[#E5E5E5] hover:bg-[#FAFAFA] transition-colors",
+      "cell": "py-3 px-4 tabular-nums align-middle",
+      "density": "Use 'dense' padding (py-2) for POS Import and Inventory ledgers."
+    },
+    "buttons": {
+      "primary": {
+        "legacy_class": "lss-btn-gold",
+        "new_styling": "inline-flex items-center justify-center bg-[#0A0A0A] text-white text-sm font-medium h-9 px-4 rounded-none hover:bg-[#262626] transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-[#0A0A0A]"
+      },
+      "outline": {
+        "legacy_class": "lss-btn-outline",
+        "new_styling": "inline-flex items-center justify-center border border-[#E5E5E5] bg-transparent text-[#0A0A0A] text-sm font-medium h-9 px-4 rounded-none hover:bg-[#F5F5F5] transition-colors"
+      },
+      "pill": {
+        "new_styling": "rounded-full px-4 py-1.5 border border-[#E5E5E5] text-xs font-medium bg-white hover:bg-[#F5F5F5]"
+      }
+    },
+    "badges": {
+      "legacy_class": "lss-badge",
+      "new_styling": "inline-flex items-center px-2 py-0.5 rounded-none text-[11px] font-semibold uppercase tracking-wide border",
+      "variants": {
+        "success": "bg-[#F0FDF4] text-[#14532D] border-[#BBE4C6]",
+        "warning": "bg-[#FEFCE8] text-[#713F12] border-[#FDE047]",
+        "danger": "bg-[#FEF2F2] text-[#7F1D1D] border-[#FECACA]",
+        "neutral": "bg-[#F5F5F5] text-[#171717] border-[#E5E5E5]"
+      }
+    },
+    "inputs_and_forms": {
+      "legacy_class": "lss-input",
+      "new_styling": "flex h-9 w-full border border-[#E5E5E5] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-[#737373] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0A0A0A] rounded-none"
+    },
+    "tabs": {
+      "container": "flex space-x-1 border-b border-[#E5E5E5] w-full",
+      "trigger": "px-4 py-2 text-sm font-medium text-[#737373] border-b-2 border-transparent hover:text-[#0A0A0A] data-[state=active]:border-[#0A0A0A] data-[state=active]:text-[#0A0A0A] transition-all",
+      "usage": "Use for Inventory (Retail/Technical/Vendors) and Incentive sub-tabs."
+    },
+    "modals": {
+      "overlay": "bg-black/40 backdrop-blur-sm",
+      "content": "bg-white border border-[#E5E5E5] shadow-xl p-6 rounded-none",
+      "header": "text-lg font-display font-medium mb-4 border-b border-[#E5E5E5] pb-2"
+    },
+    "human_confirmation_actions": {
+      "rationale": "Actions like 'Confirm Payout' or 'Approve PO' are critical Agentic Middleware handoffs. They must feel deliberate and distinct from standard form submissions.",
+      "treatment": "Use a heavy Black block button with an icon (e.g., CheckCircle or Lock). Must trigger a confirmation Dialog/Modal. The modal should require the user to explicitly type 'CONFIRM' or check a box before the final 'Approve' button enables. The final execution button uses the Danger or stark Primary variant, preventing accidental clicks.",
+      "css": "bg-[#0A0A0A] text-white text-sm font-bold uppercase tracking-wider px-6 py-3 border border-[#0A0A0A] shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-none hover:translate-y-[2px] transition-all"
+    }
+  },
+  "spacing_and_layout": {
+    "grid_system": "Mode B (Control Room Grid). Dense, scanable grid for Data/Admin. gap-4 or gap-6.",
+    "radius": "0px to 2px maximum. Strict sharp edges (rounded-none or rounded-sm) to emphasize a brutalist, highly-functional Swiss aesthetic.",
+    "container_padding": "p-6 or p-8 for main views. Modals use p-6."
+  },
+  "motion_and_interactions": {
+    "hover_states": "Subtle background shifts (white to #F5F5F5) or slight shadow increases. Avoid bouncy transforms.",
+    "transitions": "Fast and snappy. 150ms ease-in-out for colors, 200ms for modal overlays.",
+    "toasts": "Rendered at the bottom-right. Sharp edges, black background for success, stark red for errors. High contrast text."
+  },
+  "accessibility_and_testing": {
+    "contrast": "Ensures WCAG AAA for text by relying on pure black/dark grey against off-white/white.",
+    "data_testid_instructions": "CRITICAL: All interactive elements (tabs, inputs, primary confirmation buttons, modal triggers) MUST include a 'data-testid' attribute using kebab-case role-based naming (e.g., data-testid='confirm-payout-button', data-testid='pos-import-tab')."
+  },
+  "instructions_to_main_agent": "1. Replace all legacy classes (lss-btn-gold, lss-card, etc.) with the Tailwind utility classes specified here. 2. Implement the color variables in tailwind.config.js or globals.css. 3. Update typography to use IBM Plex Sans for body/tables (tabular-nums is critical) and Cabinet Grotesk for headings. 4. Ensure modals for 'Confirm Payout' use the specific human_confirmation_actions treatment. 5. Remove any gold (#d4af37) or midnight navy from the codebase. 6. Inject 'data-testid' onto every actionable element."
+}

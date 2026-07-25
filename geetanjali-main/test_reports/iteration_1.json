@@ -1,0 +1,34 @@
+{
+  "summary": "Backend smoke + business-logic verification of Luxury Salon Suite MVP. Auth (owner/manager JWT via Bearer), POS auto-seed (48 rows on 2026-06-26), Staff (8), SKUs (12), Daily/Monthly/Manager Incentives, Payouts (owner-only, upsert idempotent), Inventory Checkout (manager) & Receive (owner-only), Purchase Orders (reorder_point=velocity*4*1.5), Config (owner-only PUT), Owner Dashboard, Quality failures — all verified against expected values.",
+  "tested_scope": ["backend", "auth", "integration"],
+  "passed": [
+    "POST /api/auth/login owner returns user+token; wrong password -> 401",
+    "POST /api/auth/login manager returns user+token",
+    "GET /api/auth/me with Bearer returns user; without token -> 401",
+    "GET /api/pos/dates -> ['2026-06-26']",
+    "GET /api/pos/transactions?date=2026-06-26 -> 48 rows",
+    "GET /api/staff -> 8 staff incl. jahangir, Lhd Faid, Ashu stylist, Beauty Anju, Mhd Sadik, Pedi Sameer, navneet, mhd alam",
+    "GET /api/inventory/skus -> 12 SKUs",
+    "GET /api/incentives/daily?day=2026-06-26 -> 8 rows; jahangir svc=13840 bonus=500 retail_comm=286.88 (9562.71*3%); Mhd Sadik svc=10071 bonus=500; Pedi Sameer svc=5300 bonus=200; Beauty Anju svc=4500 bonus=100",
+    "GET /api/incentives/monthly?month=2026-06 -> 8 rows with ratio vs base_salary=25000",
+    "GET /api/incentives/manager?month=2026-06 -> revenue=58239.79, milestone=null (below 18L)",
+    "POST /api/payouts/confirm (owner) OK and idempotent (upsert by staff_id+payout_date -> payouts count remains 1 after two calls)",
+    "POST /api/payouts/confirm (manager) -> 403",
+    "POST /api/inventory/receive (owner) increments store_qty (12 -> 17)",
+    "POST /api/inventory/receive (manager) -> 403",
+    "POST /api/inventory/checkout (manager) decrements store (17->15) and increments floor (3->5); checkout log record created",
+    "GET /api/inventory/purchase-orders -> 12 drafts; reorder_point matches velocity*4*1.5 (0.3*6=1.8)",
+    "GET /api/pos/quality-failures -> [] (expected, no 100%-discount rows)",
+    "GET /api/config returns tiers/multipliers/milestones",
+    "PUT /api/config (owner) persists; PUT /api/config (manager) -> 403",
+    "GET /api/dashboard/owner -> staff_count=8, sku_count=12, working_capital=155465.25, quality_alerts=0"
+  ],
+  "failed": [],
+  "action_items": [
+    "Optional: POS re-import idempotency via POST /api/pos/upload with the Geetanjali CSV file was not executed end-to-end (only startup auto-seed idempotency indirectly validated by 48-row stable state). Consider a manual re-upload smoke test.",
+    "Minor UX: /api/payouts/confirm requires body {staff_id, payout_date, amount, breakdown}. If frontend expects a bulk 'confirm month' endpoint, add one; otherwise ensure UI iterates per staff."
+  ],
+  "success_rate": {"backend": "100%", "frontend": "not tested (backend-only request)"},
+  "retest_needed": false,
+  "full_testing_deferred": true
+}

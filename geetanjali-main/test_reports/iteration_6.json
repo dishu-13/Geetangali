@@ -1,0 +1,18 @@
+{
+  "summary": "Backend-only smoke test for iteration 6: verified new /api/config/product-incentives.xlsx export endpoint and regression on /api/config and /api/incentives/daily. All checks passed.",
+  "tested_scope": ["backend"],
+  "passed": [
+    "GET /api/config/product-incentives.xlsx returns 200 with content-type application/vnd.openxmlformats-officedocument.spreadsheetml.sheet and Content-Disposition: attachment; filename=LSS_Product_Incentives.xlsx",
+    "Workbook has sheet 'Product Incentives' with 46 rows total (row1 note, row2 blank, row3 header, rows 4-46 = 43 rule rows) and 5 columns",
+    "Kerastase shampoo rule present at row 4: ['kerastase','shampoo',None,None,150]",
+    "Guinot price-slab rows present with min/max populated (rows 41-44, e.g. ['guinot',None,3500,4499,200])",
+    "kanpeki row 40 has empty pattern (None) applying to all products: ['kanpeki',None,None,None,100]",
+    "Regression: GET /api/config returns product_incentives array with 43 rules and retail_commission_pct=0",
+    "Regression: /api/incentives/daily?day=2026-06-28 returns 15 rows, all containing product_incentive field"
+  ],
+  "failed": [],
+  "action_items": [],
+  "success_rate": {"backend": "100%", "frontend": "not tested (per request)"},
+  "retest_needed": false,
+  "full_testing_deferred": true
+}

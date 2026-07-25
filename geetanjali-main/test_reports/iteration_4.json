@@ -1,0 +1,25 @@
+{
+  "summary": "Iteration 4 backend re-test of the two MEDIUM fixes from iteration_3, plus a regression sanity pass. All 9 checks executed passed. Both fixes verified end-to-end.",
+  "tested_scope": ["backend", "auth", "integration"],
+  "passed": [
+    "Owner + Manager login (/api/auth/login) 200",
+    "BUG FIX #2 verified — GET /api/inventory/skus: all 24/24 SKUs now expose 'retail_qty' key (was 20/24 missing).",
+    "BUG FIX #2 verified — startup reconciliation: for every SKU, store_qty/floor_qty/retail_qty exactly equal the sum of batch qtys at that location (0 mismatches / 24 SKUs). Previously stale denorm from iter-3 (Creamy Cleanser retail_qty=4 vs batches=3) is now consistent (retail_qty=batches=3 pre-POS).",
+    "BUG FIX #1 verified — POS retail auto-checkout via POST /api/pos/upload (CSV with header 'Salon,Invoice Number,Date,...,Type=Product,Item Name=Creamy Cleanser (100 Gms),Quantity=1'): response pos_auto_checkouts=1, retail_qty on SKU dropped 3.0 -> 2.0 AND retail batch sum dropped 3.0 -> 2.0. _consume_batches now correctly updates the denormalized retail_qty in sync with batch decrement.",
+    "Regression: GET /api/inventory/template.xlsx -> 200, sheets = [Instructions, Vendors, Opening Stock, Purchase Invoice].",
+    "Regression: GET /api/vendors -> 5 vendors present (Kanpeki, Kerastase, Kouyou, L'Oreal Pro, TestVendorX) — upsert & sort still work.",
+    "Regression: GET /api/inventory/purchase-orders -> 24 rows, each includes vendor + lead_time_days (plus reorder_point, suggested_order_qty).",
+    "Regression: GET /api/inventory/purchase-invoices -> 5 invoices incl. INV-KAN-0724 & INV-KOU-0725.",
+    "Regression: GET /api/dashboard/owner -> working_capital=297673.93 (sane, drops slightly from 298650.21 after retail POS sale), sku_count=24, has total_service_revenue/total_retail_revenue keys.",
+    "Regression: POST /api/vendors/upload as manager -> 403 (RBAC still enforced)."
+  ],
+  "failed": [],
+  "action_items": [],
+  "success_rate": {"backend": "100%", "frontend": "not tested (backend-only per request)"},
+  "retest_needed": false,
+  "full_testing_deferred": true,
+  "notes": {
+    "pos_csv_header_gotcha": "Header row must contain both 'invoice number' and 'date' (see server.py:289). Rows with 'Invoice No' silently import with empty invoice_number and therefore skip auto-checkout (pos_auto_checkouts=0). Not a bug per current spec — flagging so future test CSVs use the correct 'Invoice Number' column name.",
+    "iter3_low_issue": "Opening-stock upload idempotency (LOW) intentionally not retested — main agent flagged as design choice, not fixing."
+  }
+}

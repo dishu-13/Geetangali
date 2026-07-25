@@ -1,0 +1,20 @@
+{
+  "summary": "Backend-only smoke test of Iteration 5 (product-brand incentives + cumulative unpaid report + xlsx export). All 7 review targets pass. Config migration confirmed (43 product_incentives across 11 brands, retail_commission_pct=0). Daily incentives now include product_incentive field; jahangir on 2026-06-28 shows db=700, pi=300, rc=0, total=1000 as expected. Product-incentive rule engine matches correctly across Kerastase / Olaplex / Guinot slabs / Thalgo. Cumulative report returns 12 unpaid-staff rows with all required fields; xlsx export works with 'Summary' and 'Day-wise Unpaid' sheets. Payout confirmation correctly excludes confirmed (staff,date) from subsequent unpaid report (jahangir 06-28 removed, paid_days_count=1). Monthly & manager milestone regressions return 200.",
+  "tested_scope": ["backend", "integration"],
+  "passed": [
+    "POST /api/auth/login owner → 200",
+    "GET /api/config → product_incentives count=43 across 11 brands (kerastase, loreal, redken, k18, moroccan, olaplex, guinot, thalgo, kanpeki, de fabulous, kerafusion), retail_commission_pct=0 (migration verified)",
+    "GET /api/incentives/daily?day=2026-06-28 → 200, rows include product_incentive; jahangir db=700 pi=300 rc=0 total=1000",
+    "calc_product_incentive rule matching: KERASTASE SHAMPOO→150, Olaplex No.3→150, Guinot@3000→150, Guinot@5000→350, Guinot@8000→500, Thalgo@6000→200 (all match spec)",
+    "GET /api/reports/cumulative-payouts?only_unpaid=true → 200, 12 staff rows with unpaid_days, cumulative_service/bonus/product_incentive/total_due, paid_days_count (≥8 unpaid staff requirement met)",
+    "GET /api/reports/cumulative-payouts.xlsx → 200, content-type=xlsx, sheets=['Summary','Day-wise Unpaid'], 7001 bytes",
+    "POST /api/payouts/confirm (staff=jahangir, payout_date=2026-06-28) → 200; subsequent cumulative?only_unpaid=true excludes 06-28 for jahangir, unpaid_days_count 2→1, paid_days_count 0→1",
+    "GET /api/incentives/monthly?month=2026-06 → 200 (regression)",
+    "GET /api/incentives/manager?month=2026-06 → 200, revenue=200414.8 (calc_manager_bonus regression)"
+  ],
+  "failed": [],
+  "action_items": [],
+  "success_rate": {"backend": "100%", "frontend": "n/a"},
+  "retest_needed": false,
+  "full_testing_deferred": true
+}

@@ -1,0 +1,16 @@
+{
+  "summary": "Backend-only verification of Kerastase brand-alias matcher fix in calc_product_incentive. Verified via GET /api/incentives/daily on two target days.",
+  "tested_scope": ["backend"],
+  "passed": [
+    "Auth: POST /api/auth/login as owner@luxurysalon.com → 200 with token",
+    "GET /api/incentives/daily?day=2026-07-04 → Uhd Siraj now shows product_incentive=150 (previously 0), daily_bonus=350, total_earned=500. Confirms 'K CHROMA ABS SHMP RESPECT 250ml' matches kerastase→shampoo via aliases (k chroma → kerastase, shmp → shampoo).",
+    "Regression GET /api/incentives/daily?day=2026-06-28 → jahangir daily_bonus=700, product_incentive=300, total_earned=1000 (matches expected).",
+    "Code review of calc_product_incentive: brand aliases dict includes kerastase (k chroma, k genesis, k nutritive, etc.), loreal (l'oreal, inoa, majirel), and pattern aliases include shampoo→shmp/shampooing, masque→mask/masq. Rule iteration order preserved so literal 'kerastase shampoo' still matches first rule (₹150)."
+  ],
+  "failed": [],
+  "action_items": [],
+  "success_rate": {"backend": "100%", "frontend": "not tested (backend-only per request)"},
+  "retest_needed": false,
+  "full_testing_deferred": true,
+  "notes": "For 'K GENESIS BAIN' — brand matches kerastase via 'k genesis' alias but no 'shampoo' pattern alias for 'bain'; would not match the ₹150 shampoo rule. Reviewer flagged this to check — behavior is as coded (bain alias not present). If bain SKUs should count as shampoo, add 'bain' to pat_aliases['shampoo']. Not blocking as fix targets the specific 2026-07-04 K CHROMA SHMP case which now works."
+}

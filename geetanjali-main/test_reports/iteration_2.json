@@ -1,0 +1,54 @@
+{
+  "summary": "Iteration 2 backend smoke test for POS multi-date seed + new inventory features (opening stock, purchase invoices with batches, expiring report, FIFO checkout, POS auto-checkout).",
+  "tested_scope": ["backend", "auth", "integration"],
+  "passed": [
+    "Auth: owner + manager login return tokens.",
+    "POS auto-seed: GET /api/pos/dates returns 3 dates ['2026-06-28','2026-06-27','2026-06-26'].",
+    "Incentives 2026-06-27: 12 staff rows returned.",
+    "Incentives 2026-06-28: jahangir service_revenue=16010 and daily_bonus=700 (₹15,000–17,999 tier) — matches spec exactly.",
+    "POS auto-checkout: /api/inventory/checkouts returns 28 rows with source='pos', notes 'POS auto-checkout · invoice <num>', and invoice_number field populated.",
+    "Quality failures: GET /api/pos/quality-failures returns 6 rows (matches spec).",
+    "Inventory SKUs: GET /api/inventory/skus returns 21 SKUs each with 'batches' array containing id/qty/location/expiry_date/unit_cost.",
+    "Owner-only SKU create: POST /api/inventory/skus with opening_store_qty=5, opening_floor_qty=2, opening_expiry=2026-09-01 succeeds; manager blocked with HTTP 403.",
+    "Purchase invoices: existing INV-001 lists via GET /api/inventory/purchase-invoices with total=5000, correct line for SKU with expiry 2026-08-15 (booked earlier); store batch appears in expiring list.",
+    "Expiring batches: GET /api/inventory/expiring?days=90 returns 3 rows with days_left + recommendation; none <30d today (2026-07-01), so no RETURN_TO_VENDOR case exercised but no incorrect recommendations either.",
+    "FIFO manual checkout: POST /api/inventory/checkout moved stock from store to floor (moved=2) using batches by expiry ordering.",
+    "Owner PUT /api/config → 200; Manager PUT /api/config → 403.",
+    "Owner dashboard: staff_count=12, sku_count=22, working_capital=228419.45 — coherent."
+  ],
+  "failed": [
+    {
+      "area": "POST /api/payouts/confirm schema",
+      "issue": "Endpoint requires additional required fields 'amount' and 'breakdown'. Review spec said body={staff_id, payout_date} should succeed; server returns 422 pydantic 'missing' for amount+breakdown.",
+      "evidence": "Response: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"amount\"],...},{\"type\":\"missing\",\"loc\":[\"body\",\"breakdown\"],...}]}",
+      "priority": "MEDIUM"
+    },
+    {
+      "area": "POST /api/inventory/purchase-invoice schema",
+      "issue": "Endpoint requires 'invoice_number', 'vendor', 'invoice_date' in addition to 'lines'. Review spec said body=lines only should work. Endpoint itself works correctly when full body is provided (confirmed via existing INV-001 total=5000).",
+      "evidence": "Response with only {lines:[...]}: 422 missing invoice_number/vendor/invoice_date.",
+      "priority": "LOW"
+    },
+    {
+      "area": "POS re-upload idempotency",
+      "issue": "Not directly re-tested by uploading same CSV; verified only via dates list unchanged after startup seed. Auto-seed itself is idempotent (3 dates present, no duplicates). Full re-upload assertion of skipped_duplicates>0 & imported=0 not executed to avoid mutating state.",
+      "evidence": "Deferred check.",
+      "priority": "LOW"
+    },
+    {
+      "area": "FIFO ordering when expiry is None",
+      "issue": "Batches with expiry_date=None appear to sort as earliest (consumed first) during store->floor move. Depending on intended semantics, None expiries may need to sort last. Non-blocking.",
+      "evidence": "Store-to-floor move drew from (None) batch before (2026-08-15) batch.",
+      "priority": "LOW"
+    }
+  ],
+  "action_items": [
+    "Confirm intended request schema for POST /api/payouts/confirm — either accept {staff_id, payout_date} only (compute amount/breakdown server-side) or update review spec.",
+    "Confirm intended request schema for POST /api/inventory/purchase-invoice — same alignment question.",
+    "Consider adding a lightweight round-trip test that re-POSTs a stored CSV to /api/pos/upload to verify skipped_duplicates > 0 and imported == 0 explicitly.",
+    "Decide FIFO tiebreaker for batches with null expiry (sort last vs first)."
+  ],
+  "success_rate": {"backend": "85%", "frontend": "n/a"},
+  "retest_needed": true,
+  "full_testing_deferred": true
+}
