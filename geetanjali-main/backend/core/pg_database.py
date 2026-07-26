@@ -31,18 +31,16 @@ class Base(DeclarativeBase):
 
 def create_engine_and_session(url: str):
     global _engine, _async_session_factory
-    kwargs: dict = {"echo": False}
-    if "postgresql" in url:
-        # asyncpg manages its own pool; SQLAlchemy pool_size/max_overflow are
-        # not compatible with the asyncpg dialect in all versions.
-        # Use connect_args to pass SSL required by Render managed Postgres.
-        kwargs["connect_args"] = {"ssl": "require"} if "render.com" in url or "amazonaws.com" in url else {}
-    _engine = create_async_engine(url, **kwargs)
+    # Keep it simple — no extra pool/SSL kwargs.
+    # asyncpg manages its own pool; pool_size/max_overflow are not supported.
+    # Render internal DB connections don't need explicit SSL (same private network).
+    _engine = create_async_engine(url, echo=False)
     _async_session_factory = async_sessionmaker(_engine, class_=AsyncSession, expire_on_commit=False)
 
 
 # Initialize default engine
 create_engine_and_session(DATABASE_URL)
+
 
 
 @asynccontextmanager

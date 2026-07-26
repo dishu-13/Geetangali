@@ -3171,80 +3171,90 @@ async def executive_dashboard():
 async def startup():
     # Create all PostgreSQL tables
     await init_pg()
-    log.info("PostgreSQL tables created/verified.")
+    log.info(f"PostgreSQL tables created/verified. Known tables: {list(Base.metadata.tables.keys())}")
 
-    async with async_session() as session:
-        # Seed users
-        async def seed_user(email_key, pw_key, name, role):
-            email = os.environ.get(email_key, "").lower().strip()
-            pw = os.environ.get(pw_key, "")
-            if not email or not pw:
-                return
-            existing = (await session.execute(select(User).where(User.email == email))).scalar_one_or_none()
-            if not existing:
-                session.add(User(
-                    id=new_id(), email=email, password_hash=hash_pw(pw),
-                    name=name, role=role, created_at=now_utc(),
-                ))
-            elif not verify_pw(pw, existing.password_hash):
-                existing.password_hash = hash_pw(pw)
+    try:
+        async with async_session() as session:
+            # Seed users
+            async def seed_user(email_key, pw_key, name, role):
+                email = os.environ.get(email_key, "").lower().strip()
+                pw = os.environ.get(pw_key, "")
+                if not email or not pw:
+                    return
+                existing = (await session.execute(select(User).where(User.email == email))).scalar_one_or_none()
+                if not existing:
+                    session.add(User(
+                        id=new_id(), email=email, password_hash=hash_pw(pw),
+                        name=name, role=role, created_at=now_utc(),
+                    ))
+                elif not verify_pw(pw, existing.password_hash):
+                    existing.password_hash = hash_pw(pw)
 
-        await seed_user("OWNER_EMAIL", "OWNER_PASSWORD", "Salon Owner", "owner")
-        await seed_user("MANAGER_EMAIL", "MANAGER_PASSWORD", "Salon Manager", "manager")
+            await seed_user("OWNER_EMAIL", "OWNER_PASSWORD", "Salon Owner", "owner")
+            await seed_user("MANAGER_EMAIL", "MANAGER_PASSWORD", "Salon Manager", "manager")
 
-        # Seed config
-        existing_cfg = (await session.execute(select(AppConfig).where(AppConfig.id == "master"))).scalar_one_or_none()
-        if not existing_cfg:
-            session.add(AppConfig(id="master", data=DEFAULT_CONFIG))
-        else:
-            data = dict(existing_cfg.data or {})
-            updated = False
-            if "product_incentives" not in data:
-                data["product_incentives"] = DEFAULT_CONFIG["product_incentives"]
-                data["retail_commission_pct"] = 0
-                updated = True
-            if "prepaid_card_bonuses" not in data:
-                data["prepaid_card_bonuses"] = DEFAULT_CONFIG["prepaid_card_bonuses"]
-                updated = True
-            if updated:
-                existing_cfg.data = data
+            # Seed config
+            existing_cfg = (await session.execute(select(AppConfig).where(AppConfig.id == "master"))).scalar_one_or_none()
+            if not existing_cfg:
+                session.add(AppConfig(id="master", data=DEFAULT_CONFIG))
+            else:
+                data = dict(existing_cfg.data or {})
+                updated = False
+                if "product_incentives" not in data:
+                    data["product_incentives"] = DEFAULT_CONFIG["product_incentives"]
+                    data["retail_commission_pct"] = 0
+                    updated = True
+                if "prepaid_card_bonuses" not in data:
+                    data["prepaid_card_bonuses"] = DEFAULT_CONFIG["prepaid_card_bonuses"]
+                    updated = True
+                if updated:
+                    existing_cfg.data = data
 
-        await session.commit()
+            await session.commit()
+    except Exception as seed_err:
+        log.warning(f"Startup seed (users/config) failed — server will still run: {seed_err}")
 
     # Seed sample POS data on first run
-    async with async_session() as session:
-        pos_count = (await session.execute(select(func.count()).select_from(POSTransaction))).scalar() or 0
-        if pos_count == 0:
-            urls_env = os.environ.get("POS_SAMPLE_URLS") or os.environ.get("POS_SAMPLE_URL", "")
-            for sample_url in [u.strip() for u in urls_env.split(",") if u.strip()]:
-                try:
-                    r = httpreq.get(sample_url, timeout=15)
-                    if r.status_code == 200:
-                        result = await import_csv_bytes(r.content)
-                        log.info(f"Seeded sample POS from {sample_url}: {result}")
-                except Exception as e:
-                    log.warning(f"Failed to seed sample POS {sample_url}: {e}")
+    try:
+        async with async_session() as session:
+            pos_count = (await session.execute(select(func.count()).select_from(POSTransaction))).scalar() or 0
+            if pos_count == 0:
+                urls_env = os.environ.get("POS_SAMPLE_URLS") or os.environ.get("POS_SAMPLE_URL", "")
+                for sample_url in [u.strip() for u in urls_env.split(",") if u.strip()]:
+                    try:
+                        r = httpreq.get(sample_url, timeout=15)
+                        if r.status_code == 200:
+                            result = await import_csv_bytes(r.content)
+                            log.info(f"Seeded sample POS from {sample_url}: {result}")
+                    except Exception as e:
+                        log.warning(f"Failed to seed sample POS {sample_url}: {e}")
+    except Exception as e:
+        log.warning(f"POS seed check failed: {e}")
 
     # Seed inventory from remote URLs on first run
-    async with async_session() as session:
-        sku_count = (await session.execute(select(func.count()).select_from(SKU))).scalar() or 0
-        if sku_count == 0:
-            seeds = [
-                ("retail", os.environ.get("RETAIL_STOCK_URL", "")),
-                ("technical", os.environ.get("TECHNICAL_STOCK_URL", "")),
-            ]
-            for ledger, url in seeds:
-                if not url:
-                    continue
-                try:
-                    r = httpreq.get(url, timeout=30)
-                    if r.status_code == 200:
-                        res = await _import_ledger(r.content, ledger)
-                        log.info(f"Seeded {ledger}: {res}")
-                except Exception as e:
-                    log.warning(f"Ledger seed {ledger} failed: {e}")
+    try:
+        async with async_session() as session:
+            sku_count = (await session.execute(select(func.count()).select_from(SKU))).scalar() or 0
+            if sku_count == 0:
+                seeds = [
+                    ("retail", os.environ.get("RETAIL_STOCK_URL", "")),
+                    ("technical", os.environ.get("TECHNICAL_STOCK_URL", "")),
+                ]
+                for ledger, url in seeds:
+                    if not url:
+                        continue
+                    try:
+                        r = httpreq.get(url, timeout=30)
+                        if r.status_code == 200:
+                            res = await _import_ledger(r.content, ledger)
+                            log.info(f"Seeded {ledger}: {res}")
+                    except Exception as e:
+                        log.warning(f"Ledger seed {ledger} failed: {e}")
+    except Exception as e:
+        log.warning(f"Inventory seed check failed: {e}")
 
     log.info("LSS backend startup complete (PostgreSQL).")
+
 
 # ------------------ Wire up ------------------
 app.include_router(api)
