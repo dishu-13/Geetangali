@@ -31,9 +31,12 @@ class Base(DeclarativeBase):
 
 def create_engine_and_session(url: str):
     global _engine, _async_session_factory
-    kwargs = {"echo": False}
+    kwargs: dict = {"echo": False}
     if "postgresql" in url:
-        kwargs.update({"pool_size": 10, "max_overflow": 20})
+        # asyncpg manages its own pool; SQLAlchemy pool_size/max_overflow are
+        # not compatible with the asyncpg dialect in all versions.
+        # Use connect_args to pass SSL required by Render managed Postgres.
+        kwargs["connect_args"] = {"ssl": "require"} if "render.com" in url or "amazonaws.com" in url else {}
     _engine = create_async_engine(url, **kwargs)
     _async_session_factory = async_sessionmaker(_engine, class_=AsyncSession, expire_on_commit=False)
 
